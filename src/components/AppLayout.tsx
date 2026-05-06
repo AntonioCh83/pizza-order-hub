@@ -3,6 +3,7 @@ import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "./AppSidebar";
 import { useAuth } from "@/hooks/useAuth";
 import { Loader2 } from "lucide-react";
+import logo from "@/assets/logo.jpg";
 
 export default function AppLayout() {
   const { user, loading } = useAuth();
