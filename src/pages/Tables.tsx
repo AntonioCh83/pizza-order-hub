@@ -66,7 +66,7 @@ export default function Tables() {
   const removeTable = async (e: React.MouseEvent, t: T) => {
     e.preventDefault();
     e.stopPropagation();
-    if (orders[t.id]) return toast.error("Chiudi prima la comanda aperta");
+    if (orders[t.id] && orders[t.id].count > 0) return toast.error("Chiudi prima la comanda aperta");
     if (!confirm(`Eliminare il tavolo ${t.number}?`)) return;
     const { error } = await supabase.from("restaurant_tables").delete().eq("id", t.id);
     if (error) return toast.error(error.message);
