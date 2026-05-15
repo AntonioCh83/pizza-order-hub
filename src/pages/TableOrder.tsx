@@ -202,7 +202,11 @@ export default function TableOrder() {
                     )}
                   </div>
                 </div>
-                {!isPending && <Badge variant="secondary" className="mt-1 text-[10px] h-4">{oi.status}</Badge>}
+                {!isPending && (
+                  <Badge className={`mt-1 text-[10px] h-4 border ${oi.status === "ready" ? "bg-success/15 text-success border-success/40" : oi.status === "preparing" ? "bg-warning/15 text-warning border-warning/40" : oi.status === "served" ? "bg-muted text-muted-foreground border-border" : "bg-primary/10 text-primary border-primary/30"}`}>
+                    {oi.status === "ready" ? "Pronta" : oi.status === "preparing" ? "In preparazione" : oi.status === "served" ? "Servita" : "Inviata"}
+                  </Badge>
+                )}
               </div>
             );
           })}
