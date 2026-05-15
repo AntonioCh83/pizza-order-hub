@@ -83,8 +83,15 @@ export default function TableOrder() {
 
   const changeQty = async (oi: OrderItem, delta: number) => {
     const q = oi.quantity + delta;
-    if (q <= 0) await supabase.from("order_items").delete().eq("id", oi.id);
-    else await supabase.from("order_items").update({ quantity: q }).eq("id", oi.id);
+    if (q <= 0) {
+      setOrderItems(prev => prev.filter(p => p.id !== oi.id));
+      const { error } = await supabase.from("order_items").delete().eq("id", oi.id);
+      if (error) { toast.error(error.message); if (orderId) await loadOrder(orderId); }
+    } else {
+      setOrderItems(prev => prev.map(p => p.id === oi.id ? { ...p, quantity: q } : p));
+      const { error } = await supabase.from("order_items").update({ quantity: q }).eq("id", oi.id);
+      if (error) { toast.error(error.message); if (orderId) await loadOrder(orderId); }
+    }
   };
 
   const sendToKitchen = async () => {
