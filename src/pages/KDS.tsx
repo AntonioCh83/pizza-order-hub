@@ -73,6 +73,24 @@ export default function KDS() {
         </div>
       </div>
 
+      <Card className="p-3 sm:p-4 mb-4 bg-muted/30 border-dashed">
+        <div className="text-sm font-semibold mb-2">Come gestire le comande</div>
+        <ul className="text-xs sm:text-sm text-muted-foreground space-y-1.5">
+          <li className="flex items-center gap-2">
+            <span className="inline-block h-3 w-3 rounded border-2 border-border bg-muted/40 shrink-0" />
+            <span><b>Inviata</b> — tocca <Check className="inline h-3.5 w-3.5 mx-0.5" /> per metterla <b>In preparazione</b>.</span>
+          </li>
+          <li className="flex items-center gap-2">
+            <span className="inline-block h-3 w-3 rounded border-2 border-warning bg-warning/10 shrink-0" />
+            <span><b>In preparazione</b> — tocca <Check className="inline h-3.5 w-3.5 mx-0.5" /> per segnarla <b>Pronta</b>.</span>
+          </li>
+          <li className="flex items-center gap-2">
+            <span className="inline-block h-3 w-3 rounded border-2 border-success bg-success/10 shrink-0" />
+            <span><b>Pronta</b> — tocca <Check className="inline h-3.5 w-3.5 mx-0.5" /> (verde) per <b>Servita</b>: scompare dalla schermata.</span>
+          </li>
+        </ul>
+      </Card>
+
       {Object.keys(groups).length === 0 && (
         <Card className="p-12 text-center text-muted-foreground">Nessuna comanda in arrivo</Card>
       )}
