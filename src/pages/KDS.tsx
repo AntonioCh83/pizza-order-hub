@@ -111,7 +111,9 @@ export default function KDS() {
                         <span className="text-2xl text-gold">{i.quantity}×</span> {i.name}
                       </div>
                       {i.notes && <div className="text-xs italic text-warning mt-1">📝 {i.notes}</div>}
-                      <Badge variant="outline" className="mt-1 text-[10px]">{i.status}</Badge>
+                      <Badge className={`mt-1 text-[10px] border ${i.status === "ready" ? "bg-success/15 text-success border-success/40" : i.status === "preparing" ? "bg-warning/15 text-warning border-warning/40" : "bg-primary/10 text-primary border-primary/30"}`}>
+                        {i.status === "ready" ? "Pronta" : i.status === "preparing" ? "In preparazione" : "Inviata"}
+                      </Badge>
                     </div>
                     <Button size="sm" onClick={() => advance(i)} className={i.status === "ready" ? "bg-success hover:bg-success/90 text-white" : "bg-gradient-gold text-gold-foreground"}>
                       <Check className="h-4 w-4" />
