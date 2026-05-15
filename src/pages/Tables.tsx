@@ -109,7 +109,7 @@ export default function Tables() {
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 sm:gap-4">
         {tables.map(t => {
           const o = orders[t.id];
-          const occupied = !!o;
+          const occupied = !!o && o.count > 0;
           return (
             <Link key={t.id} to={`/table/${t.id}`}>
               <Card className={`p-4 sm:p-5 transition-all hover:scale-[1.02] hover:shadow-elegant cursor-pointer relative overflow-hidden ${occupied ? "border-gold border-2 bg-gradient-to-br from-card to-accent-soft/30" : ""}`}>
