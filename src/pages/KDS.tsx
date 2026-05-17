@@ -93,7 +93,6 @@ export default function KDS() {
 <h1>COMANDA</h1>
 <div class="meta">Tavolo <b>${tableNumber}</b> · ${new Date().toLocaleString("it-IT")}<br/>Stampato da: <b>${deptLabels[current ?? "cucina"]}</b></div>
 ${sections || '<p>Nessuna voce</p>'}
-<script>window.onload=()=>{window.print();setTimeout(()=>window.close(),300);}</script>
 </body></html>`;
     const iframe = document.createElement("iframe");
     iframe.style.cssText = "position:fixed;right:0;bottom:0;width:0;height:0;border:0;visibility:hidden";
