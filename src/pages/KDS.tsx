@@ -91,7 +91,7 @@ export default function KDS() {
   @media print { @page { margin: 8mm; } }
 </style></head><body>
 <h1>COMANDA</h1>
-<div class="meta">Tavolo <b>${tableNumber}</b> · ${new Date().toLocaleString("it-IT")}<br/>Stampato da: <b>${deptLabels[current ?? "cucina"]}</b></div>
+<div class="meta">Tavolo <b>${tableNumber}</b> · Coperti: <b>${covers || "—"}</b> · ${new Date().toLocaleString("it-IT")}<br/>Stampato da: <b>${deptLabels[current ?? "cucina"]}</b></div>
 ${sections || '<p>Nessuna voce</p>'}
 </body></html>`;
     const iframe = document.createElement("iframe");
