@@ -52,7 +52,7 @@ export default function KDS() {
     await supabase.from("order_items").update({ status: next }).eq("id", it.id);
   };
 
-  const printOrder = async (orderId: string, tableNumber: number) => {
+  const printOrder = async (orderId: string, tableNumber: number, covers: number) => {
     const { data } = await supabase
       .from("order_items")
       .select("name, quantity, notes, department, price")
