@@ -50,19 +50,34 @@ export default function TableOrder() {
       setItems((m ?? []) as MenuItem[]);
       if (c?.[0]) setActiveCat(c[0].id);
 
-      let { data: existing } = await supabase.from("orders").select("id").eq("table_id", tableId!).eq("status", "open").maybeSingle();
+      let { data: existing } = await supabase.from("orders").select("id, covers").eq("table_id", tableId!).eq("status", "open").maybeSingle();
       if (!existing) {
         const { data: u } = await supabase.auth.getUser();
-        const { data: created } = await supabase.from("orders").insert({ table_id: tableId!, opened_by: u.user?.id }).select("id").single();
+        const { data: created } = await supabase.from("orders").insert({ table_id: tableId!, opened_by: u.user?.id }).select("id, covers").single();
         existing = created;
       }
       if (existing) {
         setOrderId(existing.id);
+        setCovers(existing.covers ?? 0);
+        if (!existing.covers) {
+          setCoversDraft(String(t?.seats ?? ""));
+          setShowCovers(true);
+        }
         await loadOrder(existing.id);
       }
       setLoading(false);
     })();
   }, [tableId]);
+
+  const saveCovers = async () => {
+    const n = parseInt(coversDraft);
+    if (!n || n < 1) { toast.error("Inserisci un numero valido"); return; }
+    if (!orderId) return;
+    const { error } = await supabase.from("orders").update({ covers: n }).eq("id", orderId);
+    if (error) return toast.error(error.message);
+    setCovers(n);
+    setShowCovers(false);
+  };
 
   useEffect(() => {
     if (!orderId) return;
