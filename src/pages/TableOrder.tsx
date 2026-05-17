@@ -21,6 +21,9 @@ export default function TableOrder() {
   const nav = useNavigate();
   const [table, setTable] = useState<any>(null);
   const [orderId, setOrderId] = useState<string | null>(null);
+  const [covers, setCovers] = useState<number>(0);
+  const [showCovers, setShowCovers] = useState(false);
+  const [coversDraft, setCoversDraft] = useState<string>("");
   const [cats, setCats] = useState<Category[]>([]);
   const [items, setItems] = useState<MenuItem[]>([]);
   const [orderItems, setOrderItems] = useState<OrderItem[]>([]);
