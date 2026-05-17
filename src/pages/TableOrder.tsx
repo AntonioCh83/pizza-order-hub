@@ -279,6 +279,18 @@ export default function TableOrder() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <Dialog open={showCovers} onOpenChange={(o) => { if (!o && !covers) return; setShowCovers(o); }}>
+        <DialogContent>
+          <DialogHeader><DialogTitle>Coperti · Tavolo {table?.number}</DialogTitle></DialogHeader>
+          <p className="text-sm text-muted-foreground">Indica il numero di commensali per questo tavolo.</p>
+          <Input type="number" min={1} value={coversDraft} onChange={e => setCoversDraft(e.target.value)} autoFocus />
+          <DialogFooter>
+            {covers > 0 && <Button variant="outline" onClick={() => setShowCovers(false)}>Annulla</Button>}
+            <Button onClick={saveCovers} className="bg-gradient-primary text-primary-foreground">Conferma</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
