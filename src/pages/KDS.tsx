@@ -28,13 +28,13 @@ export default function KDS() {
   const load = async () => {
     const { data } = await supabase
       .from("order_items")
-      .select("id, name, quantity, notes, status, sent_at, orders!inner(id, status, restaurant_tables(number))")
+      .select("id, name, quantity, notes, status, sent_at, orders!inner(id, status, covers, restaurant_tables(number))")
       .eq("department", dept!)
       .in("status", ["sent", "preparing", "ready"])
       .order("sent_at", { ascending: true });
     setItems((data ?? []).map((d: any) => ({
       ...d,
-      order: { id: d.orders.id, table: d.orders.restaurant_tables },
+      order: { id: d.orders.id, covers: d.orders.covers ?? 0, table: d.orders.restaurant_tables },
     })).filter((d: any) => d.order));
     setLoading(false);
   };
