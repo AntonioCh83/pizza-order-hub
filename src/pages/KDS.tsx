@@ -95,10 +95,21 @@ export default function KDS() {
 ${sections || '<p>Nessuna voce</p>'}
 <script>window.onload=()=>{window.print();setTimeout(()=>window.close(),300);}</script>
 </body></html>`;
-    const w = window.open("", "_blank", "width=480,height=700");
-    if (!w) return;
-    w.document.write(html);
-    w.document.close();
+    const iframe = document.createElement("iframe");
+    iframe.style.cssText = "position:fixed;right:0;bottom:0;width:0;height:0;border:0;visibility:hidden";
+    document.body.appendChild(iframe);
+    const doc = iframe.contentDocument || iframe.contentWindow?.document;
+    if (!doc) { document.body.removeChild(iframe); return; }
+    doc.open(); doc.write(html); doc.close();
+    const trigger = () => {
+      try {
+        iframe.contentWindow?.focus();
+        iframe.contentWindow?.print();
+      } catch (e) { console.error(e); }
+      setTimeout(() => { if (iframe.parentNode) iframe.parentNode.removeChild(iframe); }, 1000);
+    };
+    if (iframe.contentDocument?.readyState === "complete") setTimeout(trigger, 100);
+    else iframe.onload = () => setTimeout(trigger, 100);
   };
 
   const escapeHtml = (s: string) => s.replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]!));
