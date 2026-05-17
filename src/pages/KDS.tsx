@@ -160,10 +160,13 @@ ${sections || '<p>Nessuna voce</p>'}
         {Object.entries(groups).map(([tn, its]) => (
           <Card key={tn} className="overflow-hidden border-2">
             <div className="bg-gradient-primary text-primary-foreground px-4 py-2 flex justify-between items-center gap-2">
-              <span className="font-bold text-lg" style={{fontFamily:"'Playfair Display', serif"}}>Tavolo {tn}</span>
+              <div className="flex flex-col">
+                <span className="font-bold text-lg leading-tight" style={{fontFamily:"'Playfair Display', serif"}}>Tavolo {tn}</span>
+                <span className="text-[11px] opacity-90">Coperti: <b>{its[0].order?.covers || "—"}</b></span>
+              </div>
               <div className="flex items-center gap-2">
                 {its[0].sent_at && <span className="text-xs opacity-80 hidden sm:inline">{formatDistanceToNow(new Date(its[0].sent_at), { locale: it, addSuffix: true })}</span>}
-                <Button size="sm" variant="secondary" className="h-7 px-2" onClick={() => its[0].order && printOrder(its[0].order.id, its[0].order.table.number)}>
+                <Button size="sm" variant="secondary" className="h-7 px-2" onClick={() => its[0].order && printOrder(its[0].order.id, its[0].order.table.number, its[0].order.covers)}>
                   <Printer className="h-3.5 w-3.5 mr-1" /> Stampa
                 </Button>
               </div>
