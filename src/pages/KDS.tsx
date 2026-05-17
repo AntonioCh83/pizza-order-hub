@@ -16,7 +16,7 @@ const meta: Record<string, { title: string; icon: any }> = {
 
 type Item = {
   id: string; name: string; quantity: number; notes: string | null; status: string; sent_at: string | null;
-  order: { id: string; table: { number: number } } | null;
+  order: { id: string; covers: number; table: { number: number } } | null;
 };
 
 export default function KDS() {
