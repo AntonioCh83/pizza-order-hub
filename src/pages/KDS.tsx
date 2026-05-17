@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ChefHat, Pizza, Wine, Check, Loader2 } from "lucide-react";
+import { ChefHat, Pizza, Wine, Check, Loader2, Printer } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { it } from "date-fns/locale";
 
@@ -52,6 +52,57 @@ export default function KDS() {
     await supabase.from("order_items").update({ status: next }).eq("id", it.id);
   };
 
+  const printOrder = async (orderId: string, tableNumber: number) => {
+    const { data } = await supabase
+      .from("order_items")
+      .select("name, quantity, notes, department, price")
+      .eq("order_id", orderId)
+      .order("department")
+      .order("created_at");
+    const all = data ?? [];
+    const deptLabels: Record<string, string> = { cucina: "CUCINA", pizzeria: "PIZZERIA", bar: "BAR" };
+    const order: Array<"pizzeria" | "cucina" | "bar"> = ["pizzeria", "cucina", "bar"];
+    const current = dept;
+    const sections = order
+      .map(d => {
+        const its = all.filter((i: any) => i.department === d);
+        if (!its.length) return "";
+        const rows = its.map((i: any) => {
+          const isCurrent = d === current;
+          const line = `${i.quantity}× ${i.name}`;
+          const noteLine = i.notes ? `<div class="note">↳ <em>${escapeHtml(i.notes)}</em></div>` : "";
+          return `<div class="row ${isCurrent ? "hl" : ""}"><span>${escapeHtml(line)}</span></div>${noteLine}`;
+        }).join("");
+        return `<section><h2>${deptLabels[d]}</h2>${rows}</section>`;
+      })
+      .filter(Boolean)
+      .join('<hr/>');
+    const html = `<!doctype html><html><head><meta charset="utf-8"/><title>Comanda Tavolo ${tableNumber}</title>
+<style>
+  body{font-family:'Courier New',monospace;padding:16px;max-width:380px;margin:0 auto;color:#000}
+  h1{font-size:20px;text-align:center;margin:0 0 4px;letter-spacing:2px}
+  .meta{text-align:center;font-size:12px;margin-bottom:12px}
+  h2{font-size:14px;margin:10px 0 6px;letter-spacing:1px;border-bottom:1px dashed #000;padding-bottom:2px}
+  hr{border:0;border-top:2px dashed #000;margin:12px 0}
+  .row{font-size:14px;padding:2px 0}
+  .row.hl{font-weight:900;font-size:16px;background:#000;color:#fff;padding:3px 6px;margin:2px 0}
+  .note{font-size:12px;padding-left:16px;color:#333}
+  section{margin-bottom:6px}
+  @media print { @page { margin: 8mm; } }
+</style></head><body>
+<h1>COMANDA</h1>
+<div class="meta">Tavolo <b>${tableNumber}</b> · ${new Date().toLocaleString("it-IT")}<br/>Stampato da: <b>${deptLabels[current ?? "cucina"]}</b></div>
+${sections || '<p>Nessuna voce</p>'}
+<script>window.onload=()=>{window.print();setTimeout(()=>window.close(),300);}</script>
+</body></html>`;
+    const w = window.open("", "_blank", "width=480,height=700");
+    if (!w) return;
+    w.document.write(html);
+    w.document.close();
+  };
+
+  const escapeHtml = (s: string) => s.replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]!));
+
   if (loading) return <div className="p-12 grid place-items-center"><Loader2 className="animate-spin" /></div>;
 
   // group by table
@@ -98,9 +149,14 @@ export default function KDS() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {Object.entries(groups).map(([tn, its]) => (
           <Card key={tn} className="overflow-hidden border-2">
-            <div className="bg-gradient-primary text-primary-foreground px-4 py-2 flex justify-between items-center">
+            <div className="bg-gradient-primary text-primary-foreground px-4 py-2 flex justify-between items-center gap-2">
               <span className="font-bold text-lg" style={{fontFamily:"'Playfair Display', serif"}}>Tavolo {tn}</span>
-              {its[0].sent_at && <span className="text-xs opacity-80">{formatDistanceToNow(new Date(its[0].sent_at), { locale: it, addSuffix: true })}</span>}
+              <div className="flex items-center gap-2">
+                {its[0].sent_at && <span className="text-xs opacity-80 hidden sm:inline">{formatDistanceToNow(new Date(its[0].sent_at), { locale: it, addSuffix: true })}</span>}
+                <Button size="sm" variant="secondary" className="h-7 px-2" onClick={() => its[0].order && printOrder(its[0].order.id, its[0].order.table.number)}>
+                  <Printer className="h-3.5 w-3.5 mr-1" /> Stampa
+                </Button>
+              </div>
             </div>
             <div className="p-3 space-y-2">
               {its.map(i => (
