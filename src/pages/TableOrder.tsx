@@ -146,9 +146,9 @@ export default function TableOrder() {
       <div className="flex-1 min-w-0 p-3 sm:p-5">
         <div className="flex items-center gap-3 mb-4">
           <Button asChild variant="ghost" size="icon"><Link to="/"><ArrowLeft /></Link></Button>
-          <div>
+          <div className="flex-1">
             <h1 className="text-2xl">Tavolo {table?.number}</h1>
-            <p className="text-xs text-muted-foreground">{table?.seats} posti</p>
+            <p className="text-xs text-muted-foreground">{table?.seats} posti · Coperti: <button onClick={() => { setCoversDraft(String(covers || table?.seats || "")); setShowCovers(true); }} className="underline font-semibold text-foreground">{covers || "—"}</button></p>
           </div>
         </div>
 
