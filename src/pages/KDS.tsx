@@ -16,7 +16,7 @@ const meta: Record<string, { title: string; icon: any }> = {
 
 type Item = {
   id: string; name: string; quantity: number; notes: string | null; status: string; sent_at: string | null;
-  order: { id: string; table: { number: number } } | null;
+  order: { id: string; covers: number; table: { number: number } } | null;
 };
 
 export default function KDS() {
@@ -28,13 +28,13 @@ export default function KDS() {
   const load = async () => {
     const { data } = await supabase
       .from("order_items")
-      .select("id, name, quantity, notes, status, sent_at, orders!inner(id, status, restaurant_tables(number))")
+      .select("id, name, quantity, notes, status, sent_at, orders!inner(id, status, covers, restaurant_tables(number))")
       .eq("department", dept!)
       .in("status", ["sent", "preparing", "ready"])
       .order("sent_at", { ascending: true });
     setItems((data ?? []).map((d: any) => ({
       ...d,
-      order: { id: d.orders.id, table: d.orders.restaurant_tables },
+      order: { id: d.orders.id, covers: d.orders.covers ?? 0, table: d.orders.restaurant_tables },
     })).filter((d: any) => d.order));
     setLoading(false);
   };
@@ -52,7 +52,7 @@ export default function KDS() {
     await supabase.from("order_items").update({ status: next }).eq("id", it.id);
   };
 
-  const printOrder = async (orderId: string, tableNumber: number) => {
+  const printOrder = async (orderId: string, tableNumber: number, covers: number) => {
     const { data } = await supabase
       .from("order_items")
       .select("name, quantity, notes, department, price")
@@ -91,7 +91,7 @@ export default function KDS() {
   @media print { @page { margin: 8mm; } }
 </style></head><body>
 <h1>COMANDA</h1>
-<div class="meta">Tavolo <b>${tableNumber}</b> · ${new Date().toLocaleString("it-IT")}<br/>Stampato da: <b>${deptLabels[current ?? "cucina"]}</b></div>
+<div class="meta">Tavolo <b>${tableNumber}</b> · Coperti: <b>${covers || "—"}</b> · ${new Date().toLocaleString("it-IT")}<br/>Stampato da: <b>${deptLabels[current ?? "cucina"]}</b></div>
 ${sections || '<p>Nessuna voce</p>'}
 </body></html>`;
     const iframe = document.createElement("iframe");
@@ -160,10 +160,13 @@ ${sections || '<p>Nessuna voce</p>'}
         {Object.entries(groups).map(([tn, its]) => (
           <Card key={tn} className="overflow-hidden border-2">
             <div className="bg-gradient-primary text-primary-foreground px-4 py-2 flex justify-between items-center gap-2">
-              <span className="font-bold text-lg" style={{fontFamily:"'Playfair Display', serif"}}>Tavolo {tn}</span>
+              <div className="flex flex-col">
+                <span className="font-bold text-lg leading-tight" style={{fontFamily:"'Playfair Display', serif"}}>Tavolo {tn}</span>
+                <span className="text-[11px] opacity-90">Coperti: <b>{its[0].order?.covers || "—"}</b></span>
+              </div>
               <div className="flex items-center gap-2">
                 {its[0].sent_at && <span className="text-xs opacity-80 hidden sm:inline">{formatDistanceToNow(new Date(its[0].sent_at), { locale: it, addSuffix: true })}</span>}
-                <Button size="sm" variant="secondary" className="h-7 px-2" onClick={() => its[0].order && printOrder(its[0].order.id, its[0].order.table.number)}>
+                <Button size="sm" variant="secondary" className="h-7 px-2" onClick={() => its[0].order && printOrder(its[0].order.id, its[0].order.table.number, its[0].order.covers)}>
                   <Printer className="h-3.5 w-3.5 mr-1" /> Stampa
                 </Button>
               </div>

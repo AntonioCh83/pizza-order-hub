@@ -139,6 +139,7 @@ export type Database = {
       orders: {
         Row: {
           closed_at: string | null
+          covers: number
           id: string
           notes: string | null
           opened_at: string
@@ -148,6 +149,7 @@ export type Database = {
         }
         Insert: {
           closed_at?: string | null
+          covers?: number
           id?: string
           notes?: string | null
           opened_at?: string
@@ -157,6 +159,7 @@ export type Database = {
         }
         Update: {
           closed_at?: string | null
+          covers?: number
           id?: string
           notes?: string | null
           opened_at?: string

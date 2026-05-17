@@ -21,6 +21,9 @@ export default function TableOrder() {
   const nav = useNavigate();
   const [table, setTable] = useState<any>(null);
   const [orderId, setOrderId] = useState<string | null>(null);
+  const [covers, setCovers] = useState<number>(0);
+  const [showCovers, setShowCovers] = useState(false);
+  const [coversDraft, setCoversDraft] = useState<string>("");
   const [cats, setCats] = useState<Category[]>([]);
   const [items, setItems] = useState<MenuItem[]>([]);
   const [orderItems, setOrderItems] = useState<OrderItem[]>([]);
@@ -47,19 +50,34 @@ export default function TableOrder() {
       setItems((m ?? []) as MenuItem[]);
       if (c?.[0]) setActiveCat(c[0].id);
 
-      let { data: existing } = await supabase.from("orders").select("id").eq("table_id", tableId!).eq("status", "open").maybeSingle();
+      let { data: existing } = await supabase.from("orders").select("id, covers").eq("table_id", tableId!).eq("status", "open").maybeSingle();
       if (!existing) {
         const { data: u } = await supabase.auth.getUser();
-        const { data: created } = await supabase.from("orders").insert({ table_id: tableId!, opened_by: u.user?.id }).select("id").single();
+        const { data: created } = await supabase.from("orders").insert({ table_id: tableId!, opened_by: u.user?.id }).select("id, covers").single();
         existing = created;
       }
       if (existing) {
         setOrderId(existing.id);
+        setCovers(existing.covers ?? 0);
+        if (!existing.covers) {
+          setCoversDraft(String(t?.seats ?? ""));
+          setShowCovers(true);
+        }
         await loadOrder(existing.id);
       }
       setLoading(false);
     })();
   }, [tableId]);
+
+  const saveCovers = async () => {
+    const n = parseInt(coversDraft);
+    if (!n || n < 1) { toast.error("Inserisci un numero valido"); return; }
+    if (!orderId) return;
+    const { error } = await supabase.from("orders").update({ covers: n }).eq("id", orderId);
+    if (error) return toast.error(error.message);
+    setCovers(n);
+    setShowCovers(false);
+  };
 
   useEffect(() => {
     if (!orderId) return;
@@ -128,9 +146,9 @@ export default function TableOrder() {
       <div className="flex-1 min-w-0 p-3 sm:p-5">
         <div className="flex items-center gap-3 mb-4">
           <Button asChild variant="ghost" size="icon"><Link to="/"><ArrowLeft /></Link></Button>
-          <div>
+          <div className="flex-1">
             <h1 className="text-2xl">Tavolo {table?.number}</h1>
-            <p className="text-xs text-muted-foreground">{table?.seats} posti</p>
+            <p className="text-xs text-muted-foreground">{table?.seats} posti · Coperti: <button onClick={() => { setCoversDraft(String(covers || table?.seats || "")); setShowCovers(true); }} className="underline font-semibold text-foreground">{covers || "—"}</button></p>
           </div>
         </div>
 
@@ -258,6 +276,18 @@ export default function TableOrder() {
             <Button onClick={() => { closeTable(); setShowBill(false); }} variant="destructive">
               <Trash2 className="h-4 w-4 mr-1" /> Chiudi tavolo
             </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={showCovers} onOpenChange={(o) => { if (!o && !covers) return; setShowCovers(o); }}>
+        <DialogContent>
+          <DialogHeader><DialogTitle>Coperti · Tavolo {table?.number}</DialogTitle></DialogHeader>
+          <p className="text-sm text-muted-foreground">Indica il numero di commensali per questo tavolo.</p>
+          <Input type="number" min={1} value={coversDraft} onChange={e => setCoversDraft(e.target.value)} autoFocus />
+          <DialogFooter>
+            {covers > 0 && <Button variant="outline" onClick={() => setShowCovers(false)}>Annulla</Button>}
+            <Button onClick={saveCovers} className="bg-gradient-primary text-primary-foreground">Conferma</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
