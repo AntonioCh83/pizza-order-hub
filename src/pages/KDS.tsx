@@ -79,6 +79,7 @@ export default function KDS() {
       .join('<hr/>');
     const html = `<!doctype html><html><head><meta charset="utf-8"/><title>Comanda Tavolo ${tableNumber}</title>
 <style>
+  *{-webkit-print-color-adjust:exact !important;print-color-adjust:exact !important;color-adjust:exact !important}
   body{font-family:'Courier New',monospace;padding:16px;max-width:380px;margin:0 auto;color:#000}
   h1{font-size:20px;text-align:center;margin:0 0 4px;letter-spacing:2px}
   .meta{text-align:center;font-size:12px;margin-bottom:12px}
