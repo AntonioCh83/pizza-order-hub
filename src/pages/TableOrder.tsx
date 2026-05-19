@@ -138,20 +138,20 @@ export default function TableOrder() {
   const total = useMemo(() => orderItems.reduce((s, i) => s + Number(i.price) * i.quantity, 0), [orderItems]);
 
   const printReceipt = () => {
-    const w = window.open("", "_blank", "width=400,height=600");
-    if (!w) { toast.error("Abilita i popup per stampare"); return; }
+    const esc = (s: string) => s.replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]!));
     const now = new Date().toLocaleString("it-IT");
     const rows = orderItems.map(oi => `
       <tr>
-        <td style="padding:2px 4px">${oi.quantity}×</td>
-        <td style="padding:2px 4px;width:100%">${oi.name}${oi.notes ? `<div style="font-style:italic;font-size:10px;color:#555">${oi.notes}</div>` : ""}</td>
+        <td style="padding:2px 4px;vertical-align:top">${oi.quantity}×</td>
+        <td style="padding:2px 4px;width:100%">${esc(oi.name)}${oi.notes ? `<div style="font-style:italic;font-size:10px;color:#555">${esc(oi.notes)}</div>` : ""}</td>
         <td style="padding:2px 4px;text-align:right;white-space:nowrap">€ ${(Number(oi.price) * oi.quantity).toFixed(2)}</td>
       </tr>`).join("");
     const perCover = covers > 0 ? (total / covers) : 0;
-    w.document.write(`<!doctype html><html><head><title>Scontrino T${table?.number}</title>
+    const html = `<!doctype html><html><head><meta charset="utf-8"/><title>Scontrino T${table?.number ?? ""}</title>
       <style>
-        @page{size:80mm auto;margin:4mm}
-        body{font-family:'Courier New',monospace;font-size:12px;color:#000;margin:0;padding:8px}
+        *{-webkit-print-color-adjust:exact !important;print-color-adjust:exact !important}
+        @page{margin:6mm}
+        body{font-family:'Courier New',monospace;font-size:12px;color:#000;margin:0;padding:8px;max-width:380px}
         h1{font-size:16px;margin:0 0 4px;text-align:center}
         .meta{text-align:center;font-size:11px;margin-bottom:8px}
         .div{border-top:1px dashed #000;margin:6px 0}
@@ -162,7 +162,7 @@ export default function TableOrder() {
       </style></head><body>
       <h1>SCONTRINO NON FISCALE</h1>
       <div class="meta">
-        Tavolo <strong>${table?.number}</strong>${table?.name ? ` · ${table.name}` : ""}<br/>
+        Tavolo <strong>${table?.number ?? ""}</strong>${table?.name ? ` · ${esc(table.name)}` : ""}<br/>
         Coperti: <strong>${covers || "—"}</strong><br/>
         ${now}
       </div>
@@ -172,9 +172,22 @@ export default function TableOrder() {
       ${covers > 0 ? `<div class="sub"><span>Per coperto (${covers})</span><span>€ ${perCover.toFixed(2)}</span></div>` : ""}
       <div class="tot"><span>TOTALE</span><span>€ ${total.toFixed(2)}</span></div>
       <div class="foot">Documento non valido ai fini fiscali</div>
-      <script>window.onload=()=>{window.print();setTimeout(()=>window.close(),300)}</script>
-      </body></html>`);
-    w.document.close();
+      </body></html>`;
+    const iframe = document.createElement("iframe");
+    iframe.style.cssText = "position:fixed;right:0;bottom:0;width:0;height:0;border:0;visibility:hidden";
+    document.body.appendChild(iframe);
+    const doc = iframe.contentDocument || iframe.contentWindow?.document;
+    if (!doc) { document.body.removeChild(iframe); toast.error("Impossibile aprire l'anteprima di stampa"); return; }
+    doc.open(); doc.write(html); doc.close();
+    const trigger = () => {
+      try {
+        iframe.contentWindow?.focus();
+        iframe.contentWindow?.print();
+      } catch (e) { console.error(e); toast.error("Errore durante la stampa"); }
+      setTimeout(() => { if (iframe.parentNode) iframe.parentNode.removeChild(iframe); }, 1500);
+    };
+    if (iframe.contentDocument?.readyState === "complete") setTimeout(trigger, 150);
+    else iframe.onload = () => setTimeout(trigger, 150);
   };
 
   const pendingCount = orderItems.filter(i => i.status === "pending").reduce((s, i) => s + i.quantity, 0);
