@@ -137,7 +137,12 @@ export default function TableOrder() {
 
   const total = useMemo(() => orderItems.reduce((s, i) => s + Number(i.price) * i.quantity, 0), [orderItems]);
 
-  const printReceipt = () => {
+  const printReceipt = async () => {
+    let coversNow = covers;
+    if (orderId) {
+      const { data } = await supabase.from("orders").select("covers").eq("id", orderId).maybeSingle();
+      if (data && typeof data.covers === "number") { coversNow = data.covers; setCovers(data.covers); }
+    }
     const esc = (s: string) => s.replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]!));
     const now = new Date().toLocaleString("it-IT");
     const rows = orderItems.map(oi => `
