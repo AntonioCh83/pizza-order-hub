@@ -312,8 +312,11 @@ export default function TableOrder() {
             <span className="font-semibold">Totale</span>
             <span className="font-bold text-primary">€ {total.toFixed(2)}</span>
           </div>
-          <DialogFooter>
+          <DialogFooter className="flex-wrap gap-2">
             <Button variant="outline" onClick={() => setShowBill(false)}>Chiudi</Button>
+            <Button variant="outline" onClick={printReceipt}>
+              <Printer className="h-4 w-4 mr-1" /> Stampa scontrino
+            </Button>
             <Button onClick={() => { closeTable(); setShowBill(false); }} variant="destructive">
               <Trash2 className="h-4 w-4 mr-1" /> Chiudi tavolo
             </Button>
