@@ -137,7 +137,12 @@ export default function TableOrder() {
 
   const total = useMemo(() => orderItems.reduce((s, i) => s + Number(i.price) * i.quantity, 0), [orderItems]);
 
-  const printReceipt = () => {
+  const printReceipt = async () => {
+    let coversNow = covers;
+    if (orderId) {
+      const { data } = await supabase.from("orders").select("covers").eq("id", orderId).maybeSingle();
+      if (data && typeof data.covers === "number") { coversNow = data.covers; setCovers(data.covers); }
+    }
     const esc = (s: string) => s.replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]!));
     const now = new Date().toLocaleString("it-IT");
     const rows = orderItems.map(oi => `
@@ -146,7 +151,7 @@ export default function TableOrder() {
         <td style="padding:2px 4px;width:100%">${esc(oi.name)}${oi.notes ? `<div style="font-style:italic;font-size:10px;color:#555">${esc(oi.notes)}</div>` : ""}</td>
         <td style="padding:2px 4px;text-align:right;white-space:nowrap">€ ${(Number(oi.price) * oi.quantity).toFixed(2)}</td>
       </tr>`).join("");
-    const perCover = covers > 0 ? (total / covers) : 0;
+    const perCover = coversNow > 0 ? (total / coversNow) : 0;
     const html = `<!doctype html><html><head><meta charset="utf-8"/><title>Scontrino T${table?.number ?? ""}</title>
       <style>
         *{-webkit-print-color-adjust:exact !important;print-color-adjust:exact !important}
@@ -163,13 +168,13 @@ export default function TableOrder() {
       <h1>SCONTRINO NON FISCALE</h1>
       <div class="meta">
         Tavolo <strong>${table?.number ?? ""}</strong>${table?.name ? ` · ${esc(table.name)}` : ""}<br/>
-        Coperti: <strong>${covers || "—"}</strong><br/>
+        Coperti: <strong>${coversNow || "—"}</strong><br/>
         ${now}
       </div>
       <div class="div"></div>
       <table>${rows}</table>
       <div class="div"></div>
-      ${covers > 0 ? `<div class="sub"><span>Per coperto (${covers})</span><span>€ ${perCover.toFixed(2)}</span></div>` : ""}
+      ${coversNow > 0 ? `<div class="sub"><span>Per coperto (${coversNow})</span><span>€ ${perCover.toFixed(2)}</span></div>` : ""}
       <div class="tot"><span>TOTALE</span><span>€ ${total.toFixed(2)}</span></div>
       <div class="foot">Documento non valido ai fini fiscali</div>
       </body></html>`;
