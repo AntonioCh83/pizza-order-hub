@@ -136,6 +136,47 @@ export default function TableOrder() {
   };
 
   const total = useMemo(() => orderItems.reduce((s, i) => s + Number(i.price) * i.quantity, 0), [orderItems]);
+
+  const printReceipt = () => {
+    const w = window.open("", "_blank", "width=400,height=600");
+    if (!w) { toast.error("Abilita i popup per stampare"); return; }
+    const now = new Date().toLocaleString("it-IT");
+    const rows = orderItems.map(oi => `
+      <tr>
+        <td style="padding:2px 4px">${oi.quantity}×</td>
+        <td style="padding:2px 4px;width:100%">${oi.name}${oi.notes ? `<div style="font-style:italic;font-size:10px;color:#555">${oi.notes}</div>` : ""}</td>
+        <td style="padding:2px 4px;text-align:right;white-space:nowrap">€ ${(Number(oi.price) * oi.quantity).toFixed(2)}</td>
+      </tr>`).join("");
+    const perCover = covers > 0 ? (total / covers) : 0;
+    w.document.write(`<!doctype html><html><head><title>Scontrino T${table?.number}</title>
+      <style>
+        @page{size:80mm auto;margin:4mm}
+        body{font-family:'Courier New',monospace;font-size:12px;color:#000;margin:0;padding:8px}
+        h1{font-size:16px;margin:0 0 4px;text-align:center}
+        .meta{text-align:center;font-size:11px;margin-bottom:8px}
+        .div{border-top:1px dashed #000;margin:6px 0}
+        table{width:100%;border-collapse:collapse}
+        .tot{display:flex;justify-content:space-between;font-weight:bold;font-size:14px;margin-top:6px}
+        .sub{display:flex;justify-content:space-between;font-size:11px;color:#333}
+        .foot{text-align:center;font-size:10px;margin-top:10px;font-style:italic}
+      </style></head><body>
+      <h1>SCONTRINO NON FISCALE</h1>
+      <div class="meta">
+        Tavolo <strong>${table?.number}</strong>${table?.name ? ` · ${table.name}` : ""}<br/>
+        Coperti: <strong>${covers || "—"}</strong><br/>
+        ${now}
+      </div>
+      <div class="div"></div>
+      <table>${rows}</table>
+      <div class="div"></div>
+      ${covers > 0 ? `<div class="sub"><span>Per coperto (${covers})</span><span>€ ${perCover.toFixed(2)}</span></div>` : ""}
+      <div class="tot"><span>TOTALE</span><span>€ ${total.toFixed(2)}</span></div>
+      <div class="foot">Documento non valido ai fini fiscali</div>
+      <script>window.onload=()=>{window.print();setTimeout(()=>window.close(),300)}</script>
+      </body></html>`);
+    w.document.close();
+  };
+
   const pendingCount = orderItems.filter(i => i.status === "pending").reduce((s, i) => s + i.quantity, 0);
   const filtered = items.filter(i => i.category_id === activeCat);
 
