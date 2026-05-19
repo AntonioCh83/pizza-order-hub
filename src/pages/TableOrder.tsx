@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { ArrowLeft, Plus, Minus, Send, Receipt, Trash2, Loader2, ChefHat, Pizza, Wine } from "lucide-react";
+import { ArrowLeft, Plus, Minus, Send, Receipt, Trash2, Loader2, ChefHat, Pizza, Wine, Printer } from "lucide-react";
 import { toast } from "sonner";
 
 type MenuItem = { id: string; name: string; description: string | null; price: number; department: "cucina" | "pizzeria" | "bar"; available: boolean; category_id: string };
