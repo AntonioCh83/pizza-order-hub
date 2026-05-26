@@ -32,6 +32,7 @@ export default function TableOrder() {
   const [noteFor, setNoteFor] = useState<OrderItem | null>(null);
   const [noteText, setNoteText] = useState("");
   const [showBill, setShowBill] = useState(false);
+  const [showCloseConfirm, setShowCloseConfirm] = useState(false);
 
   const loadOrder = async (oid: string) => {
     const { data } = await supabase.from("order_items").select("*").eq("order_id", oid).order("created_at");
