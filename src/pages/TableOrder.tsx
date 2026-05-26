@@ -302,6 +302,9 @@ export default function TableOrder() {
               <Receipt className="h-4 w-4 mr-1" /> Conto
             </Button>
           </div>
+          <Button variant="ghost" className="w-full text-muted-foreground hover:text-destructive" onClick={() => setShowCloseConfirm(true)}>
+            <DoorOpen className="h-4 w-4 mr-1" /> Libera tavolo
+          </Button>
         </div>
       </aside>
 
