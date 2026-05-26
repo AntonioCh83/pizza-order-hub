@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { ArrowLeft, Plus, Minus, Send, Receipt, Trash2, Loader2, ChefHat, Pizza, Wine, Printer } from "lucide-react";
+import { ArrowLeft, Plus, Minus, Send, Receipt, Trash2, Loader2, ChefHat, Pizza, Wine, Printer, DoorOpen } from "lucide-react";
 import { toast } from "sonner";
 
 type MenuItem = { id: string; name: string; description: string | null; price: number; department: "cucina" | "pizzeria" | "bar"; available: boolean; category_id: string };
@@ -32,6 +32,7 @@ export default function TableOrder() {
   const [noteFor, setNoteFor] = useState<OrderItem | null>(null);
   const [noteText, setNoteText] = useState("");
   const [showBill, setShowBill] = useState(false);
+  const [showCloseConfirm, setShowCloseConfirm] = useState(false);
 
   const loadOrder = async (oid: string) => {
     const { data } = await supabase.from("order_items").select("*").eq("order_id", oid).order("created_at");
@@ -301,6 +302,9 @@ export default function TableOrder() {
               <Receipt className="h-4 w-4 mr-1" /> Conto
             </Button>
           </div>
+          <Button variant="ghost" className="w-full text-muted-foreground hover:text-destructive" onClick={() => setShowCloseConfirm(true)}>
+            <DoorOpen className="h-4 w-4 mr-1" /> Libera tavolo
+          </Button>
         </div>
       </aside>
 
@@ -350,6 +354,19 @@ export default function TableOrder() {
           <DialogFooter>
             {covers > 0 && <Button variant="outline" onClick={() => setShowCovers(false)}>Annulla</Button>}
             <Button onClick={saveCovers} className="bg-gradient-primary text-primary-foreground">Conferma</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={showCloseConfirm} onOpenChange={setShowCloseConfirm}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader><DialogTitle>Libera tavolo {table?.number}</DialogTitle></DialogHeader>
+          <p className="text-sm text-muted-foreground">Sei sicuro di voler liberare questo tavolo? L'ordine verrà chiuso senza stampare il conto.</p>
+          <DialogFooter className="flex gap-2">
+            <Button variant="outline" onClick={() => setShowCloseConfirm(false)}>Annulla</Button>
+            <Button variant="destructive" onClick={() => { closeTable(); setShowCloseConfirm(false); }}>
+              <Trash2 className="h-4 w-4 mr-1" /> Conferma
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
