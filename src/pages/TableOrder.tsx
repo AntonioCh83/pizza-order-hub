@@ -357,6 +357,19 @@ export default function TableOrder() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <Dialog open={showCloseConfirm} onOpenChange={setShowCloseConfirm}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader><DialogTitle>Libera tavolo {table?.number}</DialogTitle></DialogHeader>
+          <p className="text-sm text-muted-foreground">Sei sicuro di voler liberare questo tavolo? L'ordine verrà chiuso senza stampare il conto.</p>
+          <DialogFooter className="flex gap-2">
+            <Button variant="outline" onClick={() => setShowCloseConfirm(false)}>Annulla</Button>
+            <Button variant="destructive" onClick={() => { closeTable(); setShowCloseConfirm(false); }}>
+              <Trash2 className="h-4 w-4 mr-1" /> Conferma
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
