@@ -142,6 +142,16 @@ export default function TableOrder() {
     [orderItems]
   );
 
+  const canReleaseTable = useMemo(() => {
+    const hasSent = orderItems.some(i => i.status === "sent");
+    const hasServed = orderItems.some(i => i.status === "served");
+    return hasSent && !hasServed;
+  }, [orderItems]);
+
+  const releaseButtonTitle = canReleaseTable
+    ? "Libera tavolo"
+    : "Il tavolo può essere liberato solo se ci sono comande inviate e nessuna comanda servita";
+
   const saveNote = async () => {
     if (!noteFor) return;
     await supabase.from("order_items").update({ notes: noteText }).eq("id", noteFor.id);
@@ -314,9 +324,16 @@ export default function TableOrder() {
               <Receipt className="h-4 w-4 mr-1" /> Conto
             </Button>
           </div>
-          <Button variant="ghost" className="w-full text-muted-foreground hover:text-destructive" onClick={() => setShowCloseConfirm(true)}>
-            <DoorOpen className="h-4 w-4 mr-1" /> Libera tavolo
-          </Button>
+          <span title={releaseButtonTitle}>
+            <Button
+              variant="ghost"
+              className="w-full text-muted-foreground hover:text-destructive"
+              onClick={() => setShowCloseConfirm(true)}
+              disabled={!canReleaseTable}
+            >
+              <DoorOpen className="h-4 w-4 mr-1" /> Libera tavolo
+            </Button>
+          </span>
         </div>
       </aside>
 

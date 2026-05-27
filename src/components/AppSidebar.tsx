@@ -1,5 +1,5 @@
 import { NavLink, useLocation } from "react-router-dom";
-import { LayoutGrid, ChefHat, Pizza, Wine, LogOut, Utensils } from "lucide-react";
+import { LayoutGrid, ChefHat, Pizza, Star, Wine, LogOut, Utensils } from "lucide-react";
 import {
   Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel,
   SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarHeader, SidebarFooter, useSidebar,
@@ -26,7 +26,7 @@ export function AppSidebar() {
       <SidebarHeader className="border-b border-sidebar-border">
         <div className="flex items-center gap-3 px-2 py-3">
           <div className="h-9 w-9 rounded-xl bg-gradient-gold grid place-items-center shrink-0 shadow-gold">
-            <Pizza className="h-5 w-5 text-gold-foreground" />
+            <Star className="h-5 w-5 text-gold-foreground" />
           </div>
           {!collapsed && (
             <div className="min-w-0">
