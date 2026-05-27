@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { toast } from "sonner";
-import { Pizza, Loader2 } from "lucide-react";
+import { Pizza, Star, Loader2 } from "lucide-react";
 
 export default function Auth() {
   const { user, loading } = useAuth();
@@ -46,7 +46,7 @@ export default function Auth() {
       <Card className="w-full max-w-md p-8 shadow-elegant">
         <div className="flex flex-col items-center mb-6">
           <div className="h-14 w-14 rounded-2xl bg-gradient-gold grid place-items-center shadow-gold mb-3">
-            <Pizza className="h-7 w-7 text-gold-foreground" />
+            <Star className="h-7 w-7 text-gold-foreground" />
           </div>
           <h1 className="text-2xl">Comande Pro</h1>
           <p className="text-sm text-muted-foreground">Accesso staff pizzeria · ristorante</p>
