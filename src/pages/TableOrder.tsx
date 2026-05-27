@@ -371,17 +371,42 @@ export default function TableOrder() {
       </Dialog>
 
       <Dialog open={showCloseConfirm} onOpenChange={setShowCloseConfirm}>
-        <DialogContent className="max-w-sm">
+        <DialogContent className="max-w-md">
           <DialogHeader><DialogTitle>Libera tavolo {table?.number}</DialogTitle></DialogHeader>
-          <p className="text-sm text-muted-foreground">Sei sicuro di voler liberare questo tavolo? L'ordine verrà chiuso senza stampare il conto.</p>
-          <DialogFooter className="flex gap-2">
+          <p className="text-sm text-muted-foreground">
+            Sei sicuro di voler liberare questo tavolo? L'ordine verrà chiuso senza stampare il conto.
+          </p>
+          {unfinishedItems.length > 0 && (
+            <div className="rounded-md border border-destructive/40 bg-destructive/5 p-3 space-y-2 max-h-[40vh] overflow-auto">
+              <p className="text-sm font-semibold text-destructive">
+                Attenzione: ci sono {unfinishedItems.length} comande non ancora servite. Verranno eliminate dai reparti.
+              </p>
+              <ul className="space-y-1">
+                {unfinishedItems.map(oi => {
+                  const Icon = deptIcon(oi.department);
+                  const label = oi.status === "ready" ? "Pronta" : oi.status === "preparing" ? "In preparazione" : "Inviata";
+                  return (
+                    <li key={oi.id} className="flex items-center justify-between text-sm gap-2">
+                      <span className="flex items-center gap-1.5 min-w-0">
+                        <Icon className="h-3 w-3 text-muted-foreground shrink-0" />
+                        <span className="truncate">{oi.quantity}× {oi.name}</span>
+                      </span>
+                      <Badge variant="outline" className="text-[10px] shrink-0">{label} · {oi.department}</Badge>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          )}
+          <DialogFooter className="flex gap-2 justify-end">
             <Button variant="outline" onClick={() => setShowCloseConfirm(false)}>Annulla</Button>
-            <Button variant="destructive" onClick={() => { closeTable(); setShowCloseConfirm(false); }}>
+            <Button variant="destructive" onClick={async () => { await closeTable(true); setShowCloseConfirm(false); }}>
               <Trash2 className="h-4 w-4 mr-1" /> Conferma
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
     </div>
   );
 }
