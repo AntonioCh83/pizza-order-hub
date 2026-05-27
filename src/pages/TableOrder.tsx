@@ -123,12 +123,24 @@ export default function TableOrder() {
     }
   };
 
-  const closeTable = async () => {
+  const closeTable = async (deleteUnfinished = false) => {
     if (!orderId) return;
+    if (deleteUnfinished) {
+      const ids = orderItems.filter(i => ["pending", "sent", "preparing", "ready"].includes(i.status)).map(i => i.id);
+      if (ids.length) {
+        const { error } = await supabase.from("order_items").delete().in("id", ids);
+        if (error) { toast.error(error.message); return; }
+      }
+    }
     await supabase.from("orders").update({ status: "closed", closed_at: new Date().toISOString() }).eq("id", orderId);
-    toast.success("Tavolo chiuso");
+    toast.success("Tavolo liberato");
     nav("/");
   };
+
+  const unfinishedItems = useMemo(
+    () => orderItems.filter(i => ["sent", "preparing", "ready"].includes(i.status)),
+    [orderItems]
+  );
 
   const saveNote = async () => {
     if (!noteFor) return;
