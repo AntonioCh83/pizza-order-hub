@@ -18,7 +18,7 @@ export default function AppLayout() {
           <header className="h-16 flex items-center border-b bg-card px-3 gap-3 sticky top-0 z-10">
             <SidebarTrigger />
             <img src={logo} alt="Order Hub" className="h-10 w-10 object-contain rounded" />
-            <h1 className="font-display text-lg md:text-xl font-semibold tracking-wide text-primary">Casale Reginella</h1>
+            <h1 className="font-display text-lg md:text-xl font-semibold tracking-wide text-primary">Order Hub</h1>
             <div className="flex-1" />
           </header>
           <main className="flex-1 overflow-auto">
